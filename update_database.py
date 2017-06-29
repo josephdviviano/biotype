@@ -19,6 +19,7 @@ def main(database, folder, output):
     db = pd.read_csv(database, index_col=0)
     subjects = db.index
     files = glob.glob(folder + '/*')
+    files = filter(lambda x: '.bak' not in x, files) # remove 'bad' timeseries etc.
 
     # add columns
     db['ts_imi'] = ''
