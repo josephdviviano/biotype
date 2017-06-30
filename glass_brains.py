@@ -51,9 +51,9 @@ def plot(filename, flip=False):
 filenames = {
     'xbrain_biotype_rois_ea.nii.gz': True,
     'xbrain_biotype_rois_imob.nii.gz': False,
-    'xbrain_biotype_rois_imob-replication.nii.gz': True,
-    'xbrain_biotype_rois_rest.nii.gz': True,
-    'xbrain_biotype_rois_rest-replication.nii.gz': True
+    'xbrain_biotype_rois_imob-replication.nii.gz': False,
+    'xbrain_biotype_rois_rest.nii.gz': False,
+    'xbrain_biotype_rois_rest-replication.nii.gz': False
 }
 # non significant: xbrain_diagnosis_rois_imob-replication.nii.gz
    #'xbrain_diagnosis_rois_ea.nii.gz': False,

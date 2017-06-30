@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')   # Force matplotlib to not use any Xwindows backend
+import matplotlib.pyplot as plt
 import seaborn as sns
 from nilearn import image
 from nilearn import plotting
@@ -10,6 +12,7 @@ from sklearn.decomposition import PCA
 from scipy.stats import pearsonr
 import seaborn as sns
 import glob
+import sys
 
 def make_3d(img, n, flip=False):
     """returns a 3d map from a 4d file of maps"""
@@ -25,14 +28,14 @@ def make_3d(img, n, flip=False):
     return(data)
 
 
-def plot_biotype_clusters(comps, output):
-    """uses hierarchical clustering (ward's method) to show biotypes"""
-
 def find_threshold(data, pct=75):
     """for all nonzero values in input statmap, find the pct percentile"""
     data = data.get_data()
     data = data[np.where(data)]
-    threshold = np.percentile(np.abs(data), pct)
+    try:
+        threshold = np.percentile(np.abs(data), pct)
+    except:
+        threshold = -1000000
     return(threshold)
 
 
@@ -56,29 +59,31 @@ def bonferonni(ps):
 
 
 n_comps = 3
-flip = [False, False, False]
+try:
+    flip = [sys.argv[1], sys.argv[2], sys.argv[3]]
+except:
+    flip = [False, False, False]
+
 
 #cols = ['scog_er40_crt_columnqcrt_value_inv', 'Part1_TotalCorrect', 'Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps', 'np_domain_tscore_att_vigilance']
-names = ['Part1_TotalCorrect','Part2_TotalCorrect', 'Part3_TotalCorrect',
-         'RMET total', 'scog_er40_crt_columnqcrt_value_inv', 'rad_total',
-         'np_domain_tscore_process_speed', 'np_domain_tscore_att_vigilance',
-         'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning',
-         'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps']
+#names = ['Part1_TotalCorrect','Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'scog_er40_crt_columnqcrt_value_inv', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_att_vigilance', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps']
+names = ['Tasit 1', 'Tasit 2', 'Tasit 3', 'RMET', 'ER40 RT (inv)', 'RAD', 'Processing Speed', 'Attention/Vigilance', 'Working Memory', 'Verbal Learning', 'Visual Learning', 'Reasoning']
+
 
 mdl = np.load('xbrain_biotype.npz')
 db = pd.read_csv('xbrain_database_with_biotypes.csv')
-loadings = glob.glob('xbrain_biotype_X_conn_loadings_*.nii.gz')[0]
+loadings = glob.glob('xbrain_biotype_X_*_loadings_*.nii.gz')[0] # assumes only one
 
 y_loadings, y_loadings_p = calc_y_loadings(mdl)
 y_passed = bonferonni(y_loadings_p)
 
 # y
 for comp in range(n_comps):
-    if flip[comp]:
+    if flip[comp] == 'flip':
         y_loadings[:, comp] = y_loadings[:, comp] * -1
 
 plt.imshow(y_loadings, cmap=plt.cm.RdBu_r, vmin=-1, vmax=1)
-plt.yticks(range(len(mdl['y_names'])), mdl['y_names'])
+plt.yticks(range(len(mdl['y_names'])), names)
 plt.colorbar()
 plt.savefig('cca_y_thesholded.pdf')
 plt.close()
@@ -87,7 +92,7 @@ plt.close()
 comps = mdl['comps_X']
 
 for comp in range(n_comps):
-    if flip[comp]:
+    if flip[comp] == 'flip':
         data = make_3d(loadings, comp+comp+1, flip=True)
         comps[:, comp] = comps[:, comp] * -1
     else:

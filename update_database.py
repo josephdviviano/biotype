@@ -41,6 +41,12 @@ def main(database, folder, output):
     # invert reaction time
     db['scog_er40_crt_columnqcrt_value_inv'] = db['scog_er40_crt_columnqcrt_value']*-1
 
+    # calculate birchwood total
+    try:
+        db['bsfs_total'] = db['bsfs_sec1_total'] + db['bsfs_sec2_total'] + db['bsfs_sec3_total'] + db['bsfs_sec4_total'] + db['bsfs_sec5_total'] + db['bsfs_sec6_total'] + db['bsfs_sec7_total']
+    except:
+        pass
+
     for subject in subjects:
 
         # collect data

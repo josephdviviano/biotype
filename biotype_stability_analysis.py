@@ -52,8 +52,11 @@ def match_labels(a, b):
 exp_names = ['rest', 'imob-gm', 'imob-stat', 'ea-gm', 'ea-stat', 'all']
 n_exp = 100
 
-f = open('biotype_assignment_stability.csv', 'wb')
-f.write('experiment,n_total,n_unstable,mean_instability,n_ctl,mean_instability_ctl,n_scz,mean_instability_scz\n')
+f1 = open('biotype_assignment_stability.csv', 'wb')
+f1.write('experiment,n_total,n_unstable,mean_instability,n_ctl,mean_instability_ctl,n_scz,mean_instability_scz\n')
+
+f2 = open('biotype_stability_scores.csv', 'wb')
+f2.write('experiment,mean,median,std\n')
 
 for exp_name in exp_names:
 
@@ -114,6 +117,11 @@ for exp_name in exp_names:
     sns.plt.savefig('biotype_distance_{}.pdf'.format(exp_name))
     sns.plt.close()
 
+    mean = np.mean(pdist(data.T, metric='hamming'))
+    median = np.median(pdist(data.T, metric='hamming'))
+    std = np.std(pdist(data.T, metric='hamming'))
+    f2.write('{},{},{},{}\n'.format(exp_name, mean, median, std))
+
     pairwise_distances = distances[np.triu_indices(np.shape(distances)[0], k=1)]
     print('distance between biotypes {}: {}+/-{}'.format(exp_name,
         np.mean(pairwise_distances), np.std(pairwise_distances)))
@@ -153,7 +161,7 @@ for exp_name in exp_names:
     sns.plt.close()
 
     # save stats
-    f.write('{experiment},{n_total},{n_unstable},{mean_instability},{n_ctl},{mean_instability_ctl},{n_scz},{mean_instability_scz}\n'.format(
+    f1.write('{experiment},{n_total},{n_unstable},{mean_instability},{n_ctl},{mean_instability_ctl},{n_scz},{mean_instability_scz}\n'.format(
         experiment=exp_name,
         n_total=len(db_final),
         n_unstable=np.sum(np.isfinite(db_final['instability'])),
@@ -167,5 +175,6 @@ for exp_name in exp_names:
         print('redo: {}'.format(failure))
     print('done: {}'.format(exp_name))
 
-f.close()
+f1.close()
+f2.close()
 
