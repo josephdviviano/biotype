@@ -8,11 +8,19 @@ biotype_plot_scores_subjectwise.py
 biotype_plot_xy_loadings.py no no flip
 cd ..
 
-echo "imob biotype: discovery sample"
-cd biotype-imobconn_test-imobconn
+echo "resting state biotype: replication sample"
+cd biotype-restconn_test-restconn
 make_db_with_biotypes.py
 biotype_plot_scores.py
 biotype_plot_scores_subjectwise.py
+biotype_plot_xy_loadings.py no no flip
+cd ..
+
+echo "imob biotype: discovery sample"
+cd biotype-imobconn_test-imobconn
+make_db_with_biotypes.py
+biotype_plot_scores.py flip
+biotype_plot_scores_subjectwise.py flip
 biotype_plot_xy_loadings.py flip flip flip
 cd ..
 
@@ -27,8 +35,8 @@ cd ..
 echo "imob stat biotype: discovery sample"
 cd biotype-imobstat_test-imobstat
 make_db_with_biotypes.py
-biotype_plot_scores.py
-biotype_plot_scores_subjectwise.py
+biotype_plot_scores.py flip
+biotype_plot_scores_subjectwise.py flip
 biotype_plot_xy_loadings.py no flip no
 cd ..
 
