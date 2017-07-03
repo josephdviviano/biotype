@@ -43,8 +43,8 @@ cd ..
 echo "imob stat biotype: discovery sample"
 cd biotype-imobstat_test-imobstat
 make_db_with_biotypes.py
-biotype_plot_scores.py
-biotype_plot_scores_subjectwise.py
+biotype_plot_scores.py flip
+biotype_plot_scores_subjectwise.py flip
 biotype_plot_xy_loadings.py no flip no
 cd ..
 
