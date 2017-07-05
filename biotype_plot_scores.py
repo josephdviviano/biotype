@@ -198,7 +198,7 @@ else:
     fig, ax1 = plt.subplots(figsize=(10, 5), nrows=1, ncols=1)
 
 plt.subplots_adjust(left=0.125, bottom=0.25, right=0.9, top=0.85, wspace=0.25, hspace=1)
-lwidth = 0.5 # outlines
+lwidth = 0.8 # outlines
 
 plt.suptitle("Average vs Poor-Performing Biotype", y=1.09, fontsize=20)
 sns.boxplot(x="variable", y="value", hue="biotype", linewidth=lwidth,  data=cog_db, palette="RdBu", fliersize=2.5, ax=ax1)
