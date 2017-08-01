@@ -193,12 +193,12 @@ if not replication:
 sns.set_style('white')
 
 if not replication:
-    fig, (ax1, ax2) = plt.subplots(figsize=(12, 10), nrows=2)
+    fig, (ax1, ax2) = plt.subplots(figsize=(10, 10), nrows=2)
 else:
-    fig, ax1 = plt.subplots(figsize=(12,5), nrows=1, ncols=1)
+    fig, ax1 = plt.subplots(figsize=(10, 5), nrows=1, ncols=1)
 
-plt.subplots_adjust(left=0.125, bottom=0.15, right=0.9, top=0.85, wspace=0.25, hspace=0.7)
-lwidth = 0.1 # outlines
+plt.subplots_adjust(left=0.125, bottom=0.25, right=0.9, top=0.85, wspace=0.25, hspace=1)
+lwidth = 0.8 # outlines
 
 plt.suptitle("Average vs Poor-Performing Biotype", y=1.09, fontsize=20)
 sns.boxplot(x="variable", y="value", hue="biotype", linewidth=lwidth,  data=cog_db, palette="RdBu", fliersize=2.5, ax=ax1)
@@ -211,14 +211,14 @@ if not replication:
     #sns.boxplot(x="variable", y="value", hue="biotype", linewidth=lwidth, data=smp_db, palette="RdBu", fliersize=2.5, whis=3, ax=ax[1][0])
     #sns.boxplot(x="variable", y="value", hue="biotype", linewidth=lwidth, data=hlt_db, palette="RdBu", fliersize=2.5, whis=3, ax=ax[1][1])
 
-ax1.set_title("Cognitive scores")
-ax1.set_xticklabels(cog_names, rotation=45, ha='right')
+ax1.set_title("Cognitive scores", fontsize=14)
+ax1.set_xticklabels(cog_names, rotation=45, ha='right', fontsize=14)
 ax1.set_ylim([-6, 4])
 ax1.hlines(0, ax1.xaxis.get_majorticklocs()[0], ax1.xaxis.get_majorticklocs()[-1])
 
 if not replication:
-    ax2.set_title("Outcome scores")
-    ax2.set_xticklabels(out_names, rotation=45, ha='right')
+    ax2.set_title("Outcome scores", fontsize=14)
+    ax2.set_xticklabels(out_names, rotation=45, ha='right', fontsize=14)
     ax2.set_ylim([-2.5, 2.5])
     ax2.hlines(0, ax2.xaxis.get_majorticklocs()[0], ax2.xaxis.get_majorticklocs()[-1])
 
