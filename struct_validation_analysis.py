@@ -91,6 +91,95 @@ for i, line in enumerate(f):
     if i > 0:
         enigma_dict[line.split(',')[0]] = line.split(',')[1].strip()
 
+# used for cortical surface
+surf_dict = {'L_bankssts': 'Left Bank of Superior Temporal Sulcus', 
+             'L_caudalanteriorcingulate': 'Left Caudal Anterior Cingulate', 
+             'L_caudalmiddlefrontal': 'Left Caudal Middle Frontal Gyrus', 
+             'L_cuneus': 'Left Cuneus', 
+             'L_entorhinal': 'Left Entorhinal Cortex', 
+             'L_fusiform': 'Left Fusiform Gyrus', 
+             'L_inferiorparietal': 'Left Inferior Parietal Cortex', 
+             'L_inferiortemporal': 'Left Inferior Temporal Cortex', 
+             'L_isthmuscingulate': 'Left Isthmus Cingulate Cortex', 
+             'L_lateraloccipital': 'Left Lateral Occipital Cortex', 
+             'L_lateralorbitofrontal': 'Left Lateral Orbitofrontal Cortex', 
+             'L_lingual': 'Left Lingual Gyrus', 
+             'L_medialorbitofrontal': 'Left Medial Orbitofrontal Cortex', 
+             'L_middletemporal': 'Left Middle Temporal Cortex', 
+             'L_parahippocampal': 'Left Parahippocampal Gyrus', 
+             'L_paracentral': 'Left Paracentral Sulcus', 
+             'L_parsopercularis': 'Left Pars Opercularis', 
+             'L_parsorbitalis': 'Left Pars Orbitalis', 
+             'L_parstriangularis': 'Left Pars Triangularis', 
+             'L_pericalcarine': 'Left Pericalcarine', 
+             'L_postcentral': 'Left Postcentral Sulcus', 
+             'L_posteriorcingulate': 'Left Posterior Cingulate', 
+             'L_precentral': 'Left Precentral Sulcus', 
+             'L_precuneus': 'Left Precuneus', 
+             'L_rostralanteriorcingulate': 'Left Rostral Anterior Cingulate', 
+             'L_rostralmiddlefrontal': 'Left Rostral Middle Frontal Gyrus', 
+             'L_superiorfrontal': 'Left Superior Frontal Gyrus', 
+             'L_superiorparietal': 'Left Superior Parietal Gyrus', 
+             'L_superiortemporal': 'Left Superior Temporal Gyrus', 
+             'L_supramarginal': 'Left Supramarginal Gyrus', 
+             'L_frontalpole': 'Left Frontal Pole', 
+             'L_temporalpole': 'Left Temporal Pole', 
+             'L_transversetemporal': 'Left Transverse Temporal Cortex', 
+             'L_insula': 'Left Insula', 
+             'R_bankssts': 'Right Bank of Superior Temporal Sulcus', 
+             'R_caudalanteriorcingulate': 'Right Caudal Anterior Cingulate', 
+             'R_caudalmiddlefrontal': 'Right Caudal Middle Frontal Gyrus', 
+             'R_cuneus': 'Right Cuneus', 
+             'R_entorhinal': 'Right Entorhinal Cortex', 
+             'R_fusiform': 'Right Fusiform Gyrus', 
+             'R_inferiorparietal': 'Right Inferior Parietal Cortex', 
+             'R_inferiortemporal': 'Right Inferior Temporal Cortex', 
+             'R_isthmuscingulate': 'Right Isthmus Cingulate Cortex', 
+             'R_lateraloccipital': 'Right Lateral Occipital Cortex', 
+             'R_lateralorbitofrontal': 'Right Lateral Orbitofrontal Cortex', 
+             'R_lingual': 'Right Lingual Gyrus', 
+             'R_medialorbitofrontal': 'Right Medial Orbitofrontal Cortex', 
+             'R_middletemporal': 'Right Middle Temporal Cortex', 
+             'R_parahippocampal': 'Right Parahippocampal Gyrus', 
+             'R_paracentral': 'Right Paracentral Sulcus', 
+             'R_parsopercularis': 'Right Pars Opercularis', 
+             'R_parsorbitalis': 'Right Pars Orbitalis', 
+             'R_parstriangularis': 'Right Pars Triangularis', 
+             'R_pericalcarine': 'Right Pericalcarine', 
+             'R_postcentral': 'Right Postcentral Sulcus', 
+             'R_posteriorcingulate': 'Right Posterior Cingulate', 
+             'R_precentral': 'Right Precentral Sulcus', 
+             'R_precuneus': 'Right Precuneus', 
+             'R_rostralanteriorcingulate': 'Right Rostral Anterior Cingulate', 
+             'R_rostralmiddlefrontal': 'Right Rostral Middle Frontal Gyrus', 
+             'R_superiorfrontal': 'Right Superior Frontal Gyrus', 
+             'R_superiorparietal': 'Right Superior Parietal Gyrus', 
+             'R_superiortemporal': 'Right Superior Temporal Gyrus', 
+             'R_supramarginal': 'Right Supramarginal Gyrus', 
+             'R_frontalpole': 'Right Frontal Pole', 
+             'R_temporalpole': 'Right Temporal Pole', 
+             'R_transversetemporal': 'Right Transverse Temporal Cortex', 
+             'R_insula': 'Right Insula'}
+
+# used for subcortical volumes
+sub_dict = {' LLatVent': 'Left Lateral Ventricle',
+            'RLatVent': 'Right Lateral Ventricle',
+            'Lthal': 'Left Thalamus',
+            'Rthal': 'Right Thalamus',
+            'Lcaud': 'Left Caudate',
+            'Rcaud': 'Right Caudate',
+            'Lput': 'Left Putamin',
+            'Rput': 'Right Putamin',
+            '  Lpal': 'Left Globus Pallidus',
+            'Rpal': 'Right Globus Pallidus',
+            'Lhippo': 'Left Hippocampus',
+            'Rhippo': 'Right Hippocampus',
+            'Lamyg': 'Left Amygdala',
+            'Ramyg': 'Right Amygdala',
+            'Laccumb': 'Left Nucleus Accumbens',
+            'Raccumb': 'Right Nucleus Accumbens'}
+
+
 
 
 # thickness analysis
@@ -128,7 +217,7 @@ H1 = np.where(corrected[0])[0]
 f = open('cortical_thickness.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
+    f.write('{},{},{},{},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -136,8 +225,6 @@ print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
 # surface space analysis
 cols = np.array(['L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_caudalmiddlefrontal_surfavg', 'L_cuneus_surfavg', 'L_entorhinal_surfavg', 'L_fusiform_surfavg', 'L_inferiorparietal_surfavg', 'L_inferiortemporal_surfavg', 'L_isthmuscingulate_surfavg', 'L_lateraloccipital_surfavg', 'L_lateralorbitofrontal_surfavg', 'L_lingual_surfavg', 'L_medialorbitofrontal_surfavg', 'L_middletemporal_surfavg', 'L_parahippocampal_surfavg', 'L_paracentral_surfavg', 'L_parsopercularis_surfavg', 'L_parsorbitalis_surfavg', 'L_parstriangularis_surfavg', 'L_pericalcarine_surfavg', 'L_postcentral_surfavg', 'L_posteriorcingulate_surfavg', 'L_precentral_surfavg', 'L_precuneus_surfavg', 'L_rostralanteriorcingulate_surfavg', 'L_rostralmiddlefrontal_surfavg', 'L_superiorfrontal_surfavg', 'L_superiorparietal_surfavg', 'L_superiortemporal_surfavg', 'L_supramarginal_surfavg', 'L_frontalpole_surfavg', 'L_temporalpole_surfavg', 'L_transversetemporal_surfavg', 'L_insula_surfavg', 'R_bankssts_surfavg', 'R_caudalanteriorcingulate_surfavg', 'R_caudalmiddlefrontal_surfavg', 'R_cuneus_surfavg', 'R_entorhinal_surfavg', 'R_fusiform_surfavg', 'R_inferiorparietal_surfavg', 'R_inferiortemporal_surfavg', 'R_isthmuscingulate_surfavg', 'R_lateraloccipital_surfavg', 'R_lateralorbitofrontal_surfavg', 'R_lingual_surfavg', 'R_medialorbitofrontal_surfavg', 'R_middletemporal_surfavg', 'R_parahippocampal_surfavg', 'R_paracentral_surfavg', 'R_parsopercularis_surfavg', 'R_parsorbitalis_surfavg', 'R_parstriangularis_surfavg', 'R_pericalcarine_surfavg', 'R_postcentral_surfavg', 'R_posteriorcingulate_surfavg', 'R_precentral_surfavg', 'R_precuneus_surfavg', 'R_rostralanteriorcingulate_surfavg', 'R_rostralmiddlefrontal_surfavg', 'R_superiorfrontal_surfavg', 'R_superiorparietal_surfavg', 'R_superiortemporal_surfavg', 'R_supramarginal_surfavg', 'R_frontalpole_surfavg', 'R_temporalpole_surfavg', 'R_transversetemporal_surfavg', 'R_insula_surfavg'])
-
-surf_dict = {'L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_caudalmiddlefrontal_surfavg', 'L_cuneus_surfavg', 'L_entorhinal_surfavg', 'L_fusiform_surfavg', 'L_inferiorparietal_surfavg', 'L_inferiortemporal_surfavg', 'L_isthmuscingulate_surfavg', 'L_lateraloccipital_surfavg', 'L_lateralorbitofrontal_surfavg', 'L_lingual_surfavg', 'L_medialorbitofrontal_surfavg', 'L_middletemporal_surfavg', 'L_parahippocampal_surfavg', 'L_paracentral_surfavg', 'L_parsopercularis_surfavg', 'L_parsorbitalis_surfavg', 'L_parstriangularis_surfavg', 'L_pericalcarine_surfavg', 'L_postcentral_surfavg', 'L_posteriorcingulate_surfavg', 'L_precentral_surfavg', 'L_precuneus_surfavg', 'L_rostralanteriorcingulate_surfavg', 'L_rostralmiddlefrontal_surfavg', 'L_superiorfrontal_surfavg', 'L_superiorparietal_surfavg', 'L_superiortemporal_surfavg', 'L_supramarginal_surfavg', 'L_frontalpole_surfavg', 'L_temporalpole_surfavg', 'L_transversetemporal_surfavg', 'L_insula_surfavg', 'R_bankssts_surfavg', 'R_caudalanteriorcingulate_surfavg', 'R_caudalmiddlefrontal_surfavg', 'R_cuneus_surfavg', 'R_entorhinal_surfavg', 'R_fusiform_surfavg', 'R_inferiorparietal_surfavg', 'R_inferiortemporal_surfavg', 'R_isthmuscingulate_surfavg', 'R_lateraloccipital_surfavg', 'R_lateralorbitofrontal_surfavg', 'R_lingual_surfavg', 'R_medialorbitofrontal_surfavg', 'R_middletemporal_surfavg', 'R_parahippocampal_surfavg', 'R_paracentral_surfavg', 'R_parsopercularis_surfavg', 'R_parsorbitalis_surfavg', 'R_parstriangularis_surfavg', 'R_pericalcarine_surfavg', 'R_postcentral_surfavg', 'R_posteriorcingulate_surfavg', 'R_precentral_surfavg', 'R_precuneus_surfavg', 'R_rostralanteriorcingulate_surfavg', 'R_rostralmiddlefrontal_surfavg', 'R_superiorfrontal_surfavg', 'R_superiorparietal_surfavg', 'R_superiortemporal_surfavg', 'R_supramarginal_surfavg', 'R_frontalpole_surfavg', 'R_temporalpole_surfavg', 'R_transversetemporal_surfavg', 'R_insula_surfavg'}
 
 stats = pd.read_csv(os.path.join(assets, 'all_surfavg.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
@@ -169,9 +256,9 @@ corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
 f = open('cortical_surface_space.csv', 'wb')
-f.write('roi,t value,p value,significant,choens d\n')
+f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], str(int(corrected[0][i])), ds[i]))
+    f.write('{},{},{},{},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('cortical surface space: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -179,23 +266,6 @@ print('cortical surface space: {}/{} tests reject H0'.format(len(H1), len(cols))
 
 # subcortical volumes analysis
 cols = np.array([' LLatVent', 'RLatVent', 'Lthal', 'Rthal', 'Lcaud', 'Rcaud', 'Lput', 'Rput', '  Lpal', 'Rpal', 'Lhippo', 'Rhippo', 'Lamyg', 'Ramyg', 'Laccumb', 'Raccumb'])
-sub_dict = {' LLatVent': 'Left Lateral Ventricle',
-            'RLatVent': 'Right Lateral Ventricle',
-            'Lthal': 'Left Thalamus',
-            'Rthal': 'Right Thalamus',
-            'Lcaud': 'Left Caudate',
-            'Rcaud': 'Right Caudate',
-            'Lput': 'Left Putamin',
-            'Rput': 'Right Putamin',
-            '  Lpal': 'Left Globus Pallidus',
-            'Rpal': 'Right Globus Pallidus',
-            'Lhippo': 'Left Hippocampus',
-            'Rhippo': 'Right Hippocampus',
-            'Lamyg': 'Left Amygdala',
-            'Ramyg': 'Right Amygdala',
-            'Laccumb': 'Left Nucleus Accumbens',
-            'Raccumb': 'Right Nucleus Accumbens'}
-
 
 stats = pd.read_csv(os.path.join(assets, 'all_volumes.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
