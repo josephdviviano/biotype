@@ -126,9 +126,9 @@ corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
 f = open('cortical_thickness.csv', 'wb')
-f.write('roi,t value,p value,significant,choens d\n')
+f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], str(int(corrected[0][i])), ds[i]))
+    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -136,6 +136,8 @@ print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
 # surface space analysis
 cols = np.array(['L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_caudalmiddlefrontal_surfavg', 'L_cuneus_surfavg', 'L_entorhinal_surfavg', 'L_fusiform_surfavg', 'L_inferiorparietal_surfavg', 'L_inferiortemporal_surfavg', 'L_isthmuscingulate_surfavg', 'L_lateraloccipital_surfavg', 'L_lateralorbitofrontal_surfavg', 'L_lingual_surfavg', 'L_medialorbitofrontal_surfavg', 'L_middletemporal_surfavg', 'L_parahippocampal_surfavg', 'L_paracentral_surfavg', 'L_parsopercularis_surfavg', 'L_parsorbitalis_surfavg', 'L_parstriangularis_surfavg', 'L_pericalcarine_surfavg', 'L_postcentral_surfavg', 'L_posteriorcingulate_surfavg', 'L_precentral_surfavg', 'L_precuneus_surfavg', 'L_rostralanteriorcingulate_surfavg', 'L_rostralmiddlefrontal_surfavg', 'L_superiorfrontal_surfavg', 'L_superiorparietal_surfavg', 'L_superiortemporal_surfavg', 'L_supramarginal_surfavg', 'L_frontalpole_surfavg', 'L_temporalpole_surfavg', 'L_transversetemporal_surfavg', 'L_insula_surfavg', 'R_bankssts_surfavg', 'R_caudalanteriorcingulate_surfavg', 'R_caudalmiddlefrontal_surfavg', 'R_cuneus_surfavg', 'R_entorhinal_surfavg', 'R_fusiform_surfavg', 'R_inferiorparietal_surfavg', 'R_inferiortemporal_surfavg', 'R_isthmuscingulate_surfavg', 'R_lateraloccipital_surfavg', 'R_lateralorbitofrontal_surfavg', 'R_lingual_surfavg', 'R_medialorbitofrontal_surfavg', 'R_middletemporal_surfavg', 'R_parahippocampal_surfavg', 'R_paracentral_surfavg', 'R_parsopercularis_surfavg', 'R_parsorbitalis_surfavg', 'R_parstriangularis_surfavg', 'R_pericalcarine_surfavg', 'R_postcentral_surfavg', 'R_posteriorcingulate_surfavg', 'R_precentral_surfavg', 'R_precuneus_surfavg', 'R_rostralanteriorcingulate_surfavg', 'R_rostralmiddlefrontal_surfavg', 'R_superiorfrontal_surfavg', 'R_superiorparietal_surfavg', 'R_superiortemporal_surfavg', 'R_supramarginal_surfavg', 'R_frontalpole_surfavg', 'R_temporalpole_surfavg', 'R_transversetemporal_surfavg', 'R_insula_surfavg'])
+
+surf_dict = {'L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_caudalmiddlefrontal_surfavg', 'L_cuneus_surfavg', 'L_entorhinal_surfavg', 'L_fusiform_surfavg', 'L_inferiorparietal_surfavg', 'L_inferiortemporal_surfavg', 'L_isthmuscingulate_surfavg', 'L_lateraloccipital_surfavg', 'L_lateralorbitofrontal_surfavg', 'L_lingual_surfavg', 'L_medialorbitofrontal_surfavg', 'L_middletemporal_surfavg', 'L_parahippocampal_surfavg', 'L_paracentral_surfavg', 'L_parsopercularis_surfavg', 'L_parsorbitalis_surfavg', 'L_parstriangularis_surfavg', 'L_pericalcarine_surfavg', 'L_postcentral_surfavg', 'L_posteriorcingulate_surfavg', 'L_precentral_surfavg', 'L_precuneus_surfavg', 'L_rostralanteriorcingulate_surfavg', 'L_rostralmiddlefrontal_surfavg', 'L_superiorfrontal_surfavg', 'L_superiorparietal_surfavg', 'L_superiortemporal_surfavg', 'L_supramarginal_surfavg', 'L_frontalpole_surfavg', 'L_temporalpole_surfavg', 'L_transversetemporal_surfavg', 'L_insula_surfavg', 'R_bankssts_surfavg', 'R_caudalanteriorcingulate_surfavg', 'R_caudalmiddlefrontal_surfavg', 'R_cuneus_surfavg', 'R_entorhinal_surfavg', 'R_fusiform_surfavg', 'R_inferiorparietal_surfavg', 'R_inferiortemporal_surfavg', 'R_isthmuscingulate_surfavg', 'R_lateraloccipital_surfavg', 'R_lateralorbitofrontal_surfavg', 'R_lingual_surfavg', 'R_medialorbitofrontal_surfavg', 'R_middletemporal_surfavg', 'R_parahippocampal_surfavg', 'R_paracentral_surfavg', 'R_parsopercularis_surfavg', 'R_parsorbitalis_surfavg', 'R_parstriangularis_surfavg', 'R_pericalcarine_surfavg', 'R_postcentral_surfavg', 'R_posteriorcingulate_surfavg', 'R_precentral_surfavg', 'R_precuneus_surfavg', 'R_rostralanteriorcingulate_surfavg', 'R_rostralmiddlefrontal_surfavg', 'R_superiorfrontal_surfavg', 'R_superiorparietal_surfavg', 'R_superiortemporal_surfavg', 'R_supramarginal_surfavg', 'R_frontalpole_surfavg', 'R_temporalpole_surfavg', 'R_transversetemporal_surfavg', 'R_insula_surfavg'}
 
 stats = pd.read_csv(os.path.join(assets, 'all_surfavg.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
@@ -177,6 +179,23 @@ print('cortical surface space: {}/{} tests reject H0'.format(len(H1), len(cols))
 
 # subcortical volumes analysis
 cols = np.array([' LLatVent', 'RLatVent', 'Lthal', 'Rthal', 'Lcaud', 'Rcaud', 'Lput', 'Rput', '  Lpal', 'Rpal', 'Lhippo', 'Rhippo', 'Lamyg', 'Ramyg', 'Laccumb', 'Raccumb'])
+sub_dict = {' LLatVent': 'Left Lateral Ventricle',
+            'RLatVent': 'Right Lateral Ventricle',
+            'Lthal': 'Left Thalamus',
+            'Rthal': 'Right Thalamus',
+            'Lcaud': 'Left Caudate',
+            'Rcaud': 'Right Caudate',
+            'Lput': 'Left Putamin',
+            'Rput': 'Right Putamin',
+            '  Lpal': 'Left Globus Pallidus',
+            'Rpal': 'Right Globus Pallidus',
+            'Lhippo': 'Left Hippocampus',
+            'Rhippo': 'Right Hippocampus',
+            'Lamyg': 'Left Amygdala',
+            'Ramyg': 'Right Amygdala',
+            'Laccumb': 'Left Nucleus Accumbens',
+            'Raccumb': 'Right Nucleus Accumbens'}
+
 
 stats = pd.read_csv(os.path.join(assets, 'all_volumes.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
@@ -208,9 +227,9 @@ corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
 f = open('subcortical_volumes.csv', 'wb')
-f.write('roi,t value,p value,significant,choens d\n')
+f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], str(int(corrected[0][i])), ds[i]))
+    f.write('{},{},{},{},{}\n'.format(sub_dict[col], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('subcortical volumes: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -231,7 +250,7 @@ scaler_y = StandardScaler()
 y = scaler_y.fit_transform(covs)
 
 for col in cols:
-    #merged = demean_by_site(merged, col)
+    merged = demean_by_site(merged, col)
     merged = covary(merged, col, y)
 
 ts = np.zeros((len(cols), 2)) # ts, ps (per column)
@@ -250,9 +269,9 @@ corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
 f = open('dti_fa.csv', 'wb')
-f.write('roi,t value,p value,significant,choens d\n')
+f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], str(int(corrected[0][i])), ds[i]))
+    f.write('{},{},{},{},{}\n'.format(enigma_dict[col], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('dti fa: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -274,7 +293,7 @@ scaler_y = StandardScaler()
 y = scaler_y.fit_transform(covs)
 
 for col in cols:
-    #merged = demean_by_site(merged, col)
+    merged = demean_by_site(merged, col)
     merged = covary(merged, col, y)
 
 ts = np.zeros((len(cols), 2)) # ts, ps (per column)
@@ -294,9 +313,9 @@ corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
 f = open('dti_md.csv', 'wb')
-f.write('roi,t value,p value,significant,choens d\n')
+f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(col, ts[i, 0], ts[i, 1], str(int(corrected[0][i])), ds[i]))
+    f.write('{},{},{},{},{}\n'.format(enigma_dict[col], ts[i, 0], ts[i, 1], ds[i],  str(int(corrected[0][i]))))
 f.close()
 print('dti md: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
