@@ -309,8 +309,6 @@ for i, col in enumerate(cols):
 corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
 H1 = np.where(corrected[0])[0]
 
-import IPython; IPython.embed()
-
 f = open('subcortical_volumes.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
