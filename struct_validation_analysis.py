@@ -222,7 +222,7 @@ H1 = np.where(corrected[0])[0]
 f = open('cortical_thickness.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], np.around(ts[i, 0], decimals=2), np.around(ts[i, 1], decimals=2), np.around(ds[i], decimals=2), str(int(corrected[0][i]))))
+    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -267,7 +267,7 @@ H1 = np.where(corrected[0])[0]
 f = open('cortical_surface_space.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], np.around(ts[i, 0], decimals=2), np.around(ts[i, 1], decimals=2), np.around(ds[i], decimals=2), str(int(corrected[0][i]))))
+    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('cortical surface space: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -312,7 +312,7 @@ H1 = np.where(corrected[0])[0]
 f = open('subcortical_volumes.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(sub_dict[col], np.around(ts[i, 0], decimals=2), np.around(ts[i, 1], decimals=2), np.around(ds[i], decimals=2), str(int(corrected[0][i]))))
+    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(sub_dict[col], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('subcortical volumes: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -358,7 +358,7 @@ H1 = np.where(corrected[0])[0]
 f = open('dti_fa.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(enigma_dict[col.split('_')[0]], np.around(ts[i, 0], decimals=2), np.around(ts[i, 1], decimals=2), np.around(ds[i], decimals=2), str(int(corrected[0][i]))))
+    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(enigma_dict[col.split('_')[0]], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
 f.close()
 print('dti fa: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
@@ -406,7 +406,7 @@ H1 = np.where(corrected[0])[0]
 f = open('dti_md.csv', 'wb')
 f.write('roi,t value,p value,choens d,significant\n')
 for i, col in enumerate(cols):
-    f.write('{},{},{},{},{}\n'.format(enigma_dict[col.split('_')[0]], np.around(ts[i, 0], decimals=2), np.around(ts[i, 1], decimals=2), np.around(ds[i], decimals=2),  str(int(corrected[0][i]))))
+    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(enigma_dict[col.split('_')[0]], ts[i, 0], ts[i, 1], ds[i],  str(int(corrected[0][i]))))
 f.close()
 print('dti md: {}/{} tests reject H0'.format(len(H1), len(cols)))
 
