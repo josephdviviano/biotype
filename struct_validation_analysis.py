@@ -17,7 +17,7 @@ import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-flip = True
+flip = False
 
 def split_name(x):
     return('_'.join(x.split('_')[:3]))
