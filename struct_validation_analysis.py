@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 """
 must be run in an xbrain output folder
-"""
 
+subcortical volumes and cortical thickness of main ROIs, along with enigma
+FA/MD. covary for age, TBV (when doing subcortical volumes only), and education.
+"""
 
 import numpy as np
 import seaborn as sns
@@ -16,8 +18,6 @@ from scipy.stats import ttest_ind
 import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
-flip = False
 
 def split_name(x):
     return('_'.join(x.split('_')[:3]))
@@ -76,15 +76,69 @@ def demean_by_site(db, col):
     return(db)
 
 
-# subcortical volumes and cortical thickness of main ROIs
-# covary for age, and for TBV (when doing subcortical volumes only), and
-# parental education (if you have it).
+def analyze(merged, cov_list, cols, labels, dict_type, output, site_correct=False):
+    """
+    runs two sample t-tests comparing biotype after applying the appropiate
+    covariates and normalizing by site (if requested).
+    """
+    # get unique site fields
+    merged['site'] = merged['ID'].apply(get_site)
 
+    # z-score covariates
+    covs = gather_covariates(cov_list)
+    scaler_y = StandardScaler()
+    y = scaler_y.fit_transform(covs)
+
+    # regress covariates against variable of interest (from col)
+    for col in cols:
+        if site_correct:
+            merged = demean_by_site(merged, col)
+        merged = covary(merged, col, y)
+
+    # run two-sample t-tests to compare mean values between biotypes
+    ts = np.zeros((len(cols), 2)) # ts, ps (per column)
+    ds = np.zeros(len(cols)) # choens d
+    for i, col in enumerate(cols):
+
+        # flip biotypes
+        if flip:
+            idx_0 = np.where(merged['biotype'] == 1)[0]
+            idx_1 = np.where(merged['biotype'] == 0)[0]
+        else:
+            idx_0 = np.where(merged['biotype'] == 0)[0]
+            idx_1 = np.where(merged['biotype'] == 1)[0]
+
+        ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
+        ts[i, 0] = ttest[0] # tvals
+        ts[i, 1] = ttest[1] # pvals
+        ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
+
+    corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
+    H1 = np.where(corrected[0])[0]
+
+    # write stats to output
+    f = open(output, 'wb')
+    f.write('roi,t value,p value,choens d,significant\n')
+    for i, col in enumerate(cols):
+        if dict_type == 'subcortex':
+            name = labels[col]
+        elif dict_type == 'cortex':
+            name = labels['_'.join(col.split('_')[:2])]
+        elif dict_type == 'enigma':
+            name = labels[col.split('_')[0]]
+        f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(
+            name, ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
+    f.close()
+    print('{}: {}/{} tests reject H0'.format(output, len(H1), len(cols)))
+
+
+# initial settings
 assets = '/projects/jviviano/data/xbrain/assets'
 db = pd.read_csv('xbrain_database_with_biotypes.csv')
-enigma_lut = os.path.join(assets, 'enigma_lut.csv')
+flip = False
 
-# used for pretty printing enigma ROI names later on
+# enigma ROI names
+enigma_lut = os.path.join(assets, 'enigma_lut.csv')
 f = open(enigma_lut, 'rb')
 f = f.readlines()
 enigma_dict = {}
@@ -92,7 +146,7 @@ for i, line in enumerate(f):
     if i > 0:
         enigma_dict[line.split(',')[0]] = line.split(',')[1].strip()
 
-# used for cortical surface
+# freesurfer surface ROI names
 surf_dict = {'L_bankssts': 'Left Bank of Superior Temporal Sulcus',
              'L_caudalanteriorcingulate': 'Left Caudal Anterior Cingulate',
              'L_caudalmiddlefrontal': 'Left Caudal Middle Frontal Gyrus',
@@ -162,7 +216,7 @@ surf_dict = {'L_bankssts': 'Left Bank of Superior Temporal Sulcus',
              'R_transversetemporal': 'Right Transverse Temporal Cortex',
              'R_insula': 'Right Insula'}
 
-# used for subcortical volumes
+# freesurfer subcortical ROI names
 sub_dict = {' LLatVent': 'Left Lateral Ventricle',
             'RLatVent': 'Right Lateral Ventricle',
             'Lthal': 'Left Thalamus',
@@ -180,234 +234,43 @@ sub_dict = {' LLatVent': 'Left Lateral Ventricle',
             'Laccumb': 'Left Nucleus Accumbens',
             'Raccumb': 'Right Nucleus Accumbens'}
 
-
-
-
-# thickness analysis
+# cortical thickness
 cols = np.array(['L_bankssts_thickavg', 'L_caudalanteriorcingulate_thickavg', 'L_caudalmiddlefrontal_thickavg', 'L_cuneus_thickavg', 'L_entorhinal_thickavg', 'L_fusiform_thickavg', 'L_inferiorparietal_thickavg', 'L_inferiortemporal_thickavg', 'L_isthmuscingulate_thickavg', 'L_lateraloccipital_thickavg', 'L_lateralorbitofrontal_thickavg', 'L_lingual_thickavg', 'L_medialorbitofrontal_thickavg', 'L_middletemporal_thickavg', 'L_parahippocampal_thickavg', 'L_paracentral_thickavg', 'L_parsopercularis_thickavg', 'L_parsorbitalis_thickavg', 'L_parstriangularis_thickavg', 'L_pericalcarine_thickavg', 'L_postcentral_thickavg', 'L_posteriorcingulate_thickavg', 'L_precentral_thickavg', 'L_precuneus_thickavg', 'L_rostralanteriorcingulate_thickavg', 'L_rostralmiddlefrontal_thickavg', 'L_superiorfrontal_thickavg', 'L_superiorparietal_thickavg', 'L_superiortemporal_thickavg', 'L_supramarginal_thickavg', 'L_frontalpole_thickavg', 'L_temporalpole_thickavg', 'L_transversetemporal_thickavg', 'L_insula_thickavg', 'R_bankssts_thickavg', 'R_caudalanteriorcingulate_thickavg', 'R_caudalmiddlefrontal_thickavg', 'R_cuneus_thickavg', 'R_entorhinal_thickavg', 'R_fusiform_thickavg', 'R_inferiorparietal_thickavg', 'R_inferiortemporal_thickavg', 'R_isthmuscingulate_thickavg', 'R_lateraloccipital_thickavg', 'R_lateralorbitofrontal_thickavg', 'R_lingual_thickavg', 'R_medialorbitofrontal_thickavg', 'R_middletemporal_thickavg', 'R_parahippocampal_thickavg', 'R_paracentral_thickavg', 'R_parsopercularis_thickavg', 'R_parsorbitalis_thickavg', 'R_parstriangularis_thickavg', 'R_pericalcarine_thickavg', 'R_postcentral_thickavg', 'R_posteriorcingulate_thickavg', 'R_precentral_thickavg', 'R_precuneus_thickavg', 'R_rostralanteriorcingulate_thickavg', 'R_rostralmiddlefrontal_thickavg', 'R_superiorfrontal_thickavg', 'R_superiorparietal_thickavg', 'R_superiortemporal_thickavg', 'R_supramarginal_thickavg', 'R_frontalpole_thickavg', 'R_temporalpole_thickavg', 'R_transversetemporal_thickavg', 'R_insula_thickavg'])
-
 stats = pd.read_csv(os.path.join(assets, 'all_thickness.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-# get unique site fields
-merged['site'] = merged['ID'].apply(get_site)
+cov_list = [merged['Education'], merged['Age at Enrollment']]
+analyze(merged, cov_list, cols, surf_dict, 'cortex', 'cortical_thickness.csv')
 
-covs = gather_covariates([
-    merged['Education'], merged['Age at Enrollment']])
-scaler_y = StandardScaler()
-y = scaler_y.fit_transform(covs)
-
-for col in cols:
-    merged = covary(merged, col, y)
-
-ts = np.zeros((len(cols), 2)) # ts, ps (per column)
-ds = np.zeros(len(cols)) # choens d
-for i, col in enumerate(cols):
-
-    if flip:
-        idx_0 = np.where(merged['biotype'] == 1)[0]
-        idx_1 = np.where(merged['biotype'] == 0)[0]
-    else:
-        idx_0 = np.where(merged['biotype'] == 0)[0]
-        idx_1 = np.where(merged['biotype'] == 1)[0]
-
-    ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    ts[i, 0] = ttest[0] # tvals
-    ts[i, 1] = ttest[1] # pvals
-    ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-
-corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
-H1 = np.where(corrected[0])[0]
-
-f = open('cortical_thickness.csv', 'wb')
-f.write('roi,t value,p value,choens d,significant\n')
-for i, col in enumerate(cols):
-    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
-f.close()
-print('cortical thickness: {}/{} tests reject H0'.format(len(H1), len(cols)))
-
-
-
-# surface space analysis
+# cortical surface space
 cols = np.array(['L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_caudalmiddlefrontal_surfavg', 'L_cuneus_surfavg', 'L_entorhinal_surfavg', 'L_fusiform_surfavg', 'L_inferiorparietal_surfavg', 'L_inferiortemporal_surfavg', 'L_isthmuscingulate_surfavg', 'L_lateraloccipital_surfavg', 'L_lateralorbitofrontal_surfavg', 'L_lingual_surfavg', 'L_medialorbitofrontal_surfavg', 'L_middletemporal_surfavg', 'L_parahippocampal_surfavg', 'L_paracentral_surfavg', 'L_parsopercularis_surfavg', 'L_parsorbitalis_surfavg', 'L_parstriangularis_surfavg', 'L_pericalcarine_surfavg', 'L_postcentral_surfavg', 'L_posteriorcingulate_surfavg', 'L_precentral_surfavg', 'L_precuneus_surfavg', 'L_rostralanteriorcingulate_surfavg', 'L_rostralmiddlefrontal_surfavg', 'L_superiorfrontal_surfavg', 'L_superiorparietal_surfavg', 'L_superiortemporal_surfavg', 'L_supramarginal_surfavg', 'L_frontalpole_surfavg', 'L_temporalpole_surfavg', 'L_transversetemporal_surfavg', 'L_insula_surfavg', 'R_bankssts_surfavg', 'R_caudalanteriorcingulate_surfavg', 'R_caudalmiddlefrontal_surfavg', 'R_cuneus_surfavg', 'R_entorhinal_surfavg', 'R_fusiform_surfavg', 'R_inferiorparietal_surfavg', 'R_inferiortemporal_surfavg', 'R_isthmuscingulate_surfavg', 'R_lateraloccipital_surfavg', 'R_lateralorbitofrontal_surfavg', 'R_lingual_surfavg', 'R_medialorbitofrontal_surfavg', 'R_middletemporal_surfavg', 'R_parahippocampal_surfavg', 'R_paracentral_surfavg', 'R_parsopercularis_surfavg', 'R_parsorbitalis_surfavg', 'R_parstriangularis_surfavg', 'R_pericalcarine_surfavg', 'R_postcentral_surfavg', 'R_posteriorcingulate_surfavg', 'R_precentral_surfavg', 'R_precuneus_surfavg', 'R_rostralanteriorcingulate_surfavg', 'R_rostralmiddlefrontal_surfavg', 'R_superiorfrontal_surfavg', 'R_superiorparietal_surfavg', 'R_superiortemporal_surfavg', 'R_supramarginal_surfavg', 'R_frontalpole_surfavg', 'R_temporalpole_surfavg', 'R_transversetemporal_surfavg', 'R_insula_surfavg'])
-
 stats = pd.read_csv(os.path.join(assets, 'all_surfavg.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-# get unique site fields
-merged['site'] = merged['ID'].apply(get_site)
+cov_list = [merged['Education'], merged['Age at Enrollment']]
+analyze(merged, cov_list, cols, surf_dict, 'cortex', 'cortical_surface_space.csv')
 
-covs = gather_covariates([
-    merged['Education'], merged['Age at Enrollment']])
-scaler_y = StandardScaler()
-y = scaler_y.fit_transform(covs)
-
-for col in cols:
-    merged = covary(merged, col, y)
-
-ts = np.zeros((len(cols), 2)) # ts, ps (per column)
-ds = np.zeros(len(cols)) # choens d
-for i, col in enumerate(cols):
-
-    if flip:
-        idx_0 = np.where(merged['biotype'] == 1)[0]
-        idx_1 = np.where(merged['biotype'] == 0)[0]
-    else:
-        idx_0 = np.where(merged['biotype'] == 0)[0]
-        idx_1 = np.where(merged['biotype'] == 1)[0]
-
-    ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    ts[i, 0] = ttest[0] # tvals
-    ts[i, 1] = ttest[1] # pvals
-    ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-
-corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
-H1 = np.where(corrected[0])[0]
-
-f = open('cortical_surface_space.csv', 'wb')
-f.write('roi,t value,p value,choens d,significant\n')
-for i, col in enumerate(cols):
-    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(surf_dict['_'.join(col.split('_')[:2])], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
-f.close()
-print('cortical surface space: {}/{} tests reject H0'.format(len(H1), len(cols)))
-
-
-
-# subcortical volumes analysis
+# subcortical volumes
 cols = np.array([' LLatVent', 'RLatVent', 'Lthal', 'Rthal', 'Lcaud', 'Rcaud', 'Lput', 'Rput', '  Lpal', 'Rpal', 'Lhippo', 'Rhippo', 'Lamyg', 'Ramyg', 'Laccumb', 'Raccumb'])
-
 stats = pd.read_csv(os.path.join(assets, 'all_volumes.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-# get unique site fields
-merged['site'] = merged['ID'].apply(get_site)
+cov_list = [merged['Education'], merged['ICV'], merged['Age at Enrollment']]
+analyze(merged, cov_list, cols, sub_dict, 'subcortex', 'subcortical_volumes.csv')
 
-covs = gather_covariates([
-    merged['Education'], merged['ICV'], merged['Age at Enrollment']])
-scaler_y = StandardScaler()
-y = scaler_y.fit_transform(covs)
-
-for col in cols:
-    merged = covary(merged, col, y)
-
-ts = np.zeros((len(cols), 2)) # ts, ps (per column)
-ds = np.zeros(len(cols)) # choens d
-for i, col in enumerate(cols):
-
-    if flip:
-        idx_0 = np.where(merged['biotype'] == 1)[0]
-        idx_1 = np.where(merged['biotype'] == 0)[0]
-    else:
-        idx_0 = np.where(merged['biotype'] == 0)[0]
-        idx_1 = np.where(merged['biotype'] == 1)[0]
-
-    ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    ts[i, 0] = ttest[0] # tvals
-    ts[i, 1] = ttest[1] # pvals
-    ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-
-corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
-H1 = np.where(corrected[0])[0]
-
-f = open('subcortical_volumes.csv', 'wb')
-f.write('roi,t value,p value,choens d,significant\n')
-for i, col in enumerate(cols):
-    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(sub_dict[col], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
-f.close()
-print('subcortical volumes: {}/{} tests reject H0'.format(len(H1), len(cols)))
-
-
-
-# FA analysis
+# deep white matter FA
 cols = np.array(['ACR-L_FA', 'ACR-R_FA', 'ALIC-L_FA', 'ALIC-R_FA', 'BCC_FA', 'CC_FA', 'CGC-L_FA', 'CGC-R_FA', 'CGH-L_FA', 'CGH-R_FA', 'CR-L_FA', 'CR-R_FA', 'CST-L_FA', 'CST-R_FA', 'EC-L_FA', 'EC-R_FA', 'FX/ST-L_FA', 'FX/ST-R_FA', 'FXST_FA', 'GCC_FA', 'IC-L_FA', 'IC-R_FA', 'IFO-L_FA', 'IFO-R_FA', 'PCR-L_FA', 'PCR-R_FA', 'PLIC-L_FA', 'PLIC-R_FA', 'PTR-L_FA', 'PTR-R_FA', 'RLIC-L_FA', 'RLIC-R_FA', 'SCC_FA', 'SCR-L_FA', 'SCR-R_FA', 'SFO-L_FA', 'SFO-R_FA', 'SLF-L_FA', 'SLF-R_FA', 'SS-L_FA', 'SS-R_FA', 'UNC-L_FA', 'UNC-R_FA'])
-
 stats = pd.read_csv(os.path.join(assets, 'all_fa.csv'))
 stats['ID'] = stats['id'].apply(split_name)
 merged = db.merge(stats, on='ID')
-# get unique site fields
-merged['site'] = merged['ID'].apply(get_site)
+cov_list = [merged['Education'], merged['Age at Enrollment']]
+analyze(merged, cov_list, cols, enigma_dict, 'enigma', 'dti_fa.csv', site_correct=True)
 
-covs = gather_covariates([
-    merged['Education'], merged['Age at Enrollment']])
-scaler_y = StandardScaler()
-y = scaler_y.fit_transform(covs)
-
-for col in cols:
-    merged = demean_by_site(merged, col)
-    merged = covary(merged, col, y)
-
-ts = np.zeros((len(cols), 2)) # ts, ps (per column)
-ds = np.zeros(len(cols)) # choens d
-for i, col in enumerate(cols):
-
-    if flip:
-        idx_0 = np.where(merged['biotype'] == 1)[0]
-        idx_1 = np.where(merged['biotype'] == 0)[0]
-    else:
-        idx_0 = np.where(merged['biotype'] == 0)[0]
-        idx_1 = np.where(merged['biotype'] == 1)[0]
-
-    ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    ts[i, 0] = ttest[0] # tvals
-    ts[i, 1] = ttest[1] # pvals
-    ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-
-corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
-H1 = np.where(corrected[0])[0]
-
-f = open('dti_fa.csv', 'wb')
-f.write('roi,t value,p value,choens d,significant\n')
-for i, col in enumerate(cols):
-    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(enigma_dict[col.split('_')[0]], ts[i, 0], ts[i, 1], ds[i], str(int(corrected[0][i]))))
-f.close()
-print('dti fa: {}/{} tests reject H0'.format(len(H1), len(cols)))
-
-
-
-
-# MD analysis
+# deep white matter MD
 cols = np.array(['ACR-L_MD', 'ACR-R_MD', 'ALIC-L_MD', 'ALIC-R_MD', 'BCC_MD', 'CC_MD', 'CGC-L_MD', 'CGC-R_MD', 'CGH-L_MD', 'CGH-R_MD', 'CR-L_MD', 'CR-R_MD', 'CST-L_MD', 'CST-R_MD', 'EC-L_MD', 'EC-R_MD', 'FX/ST-L_MD', 'FX/ST-R_MD', 'FXST_MD', 'GCC_MD', 'IC-L_MD', 'IC-R_MD', 'IFO-L_MD', 'IFO-R_MD', 'PCR-L_MD', 'PCR-R_MD', 'PLIC-L_MD', 'PLIC-R_MD', 'PTR-L_MD', 'PTR-R_MD', 'RLIC-L_MD', 'RLIC-R_MD', 'SCC_MD', 'SCR-L_MD', 'SCR-R_MD', 'SFO-L_MD', 'SFO-R_MD', 'SLF-L_MD', 'SLF-R_MD', 'SS-L_MD', 'SS-R_MD', 'UNC-L_MD', 'UNC-R_MD'])
-
 stats = pd.read_csv(os.path.join(assets, 'all_md.csv'))
 stats['ID'] = stats['id'].apply(split_name)
 merged = db.merge(stats, on='ID')
-# get unique site fields
-merged['site'] = merged['ID'].apply(get_site)
-
-covs = gather_covariates([
-    merged['Education'], merged['Age at Enrollment']])
-scaler_y = StandardScaler()
-y = scaler_y.fit_transform(covs)
-
-for col in cols:
-    merged = demean_by_site(merged, col)
-    merged = covary(merged, col, y)
-
-ts = np.zeros((len(cols), 2)) # ts, ps (per column)
-ds = np.zeros(len(cols)) # choens d
-for i, col in enumerate(cols):
-
-    if flip:
-        idx_0 = np.where(merged['biotype'] == 1)[0]
-        idx_1 = np.where(merged['biotype'] == 0)[0]
-    else:
-        idx_0 = np.where(merged['biotype'] == 0)[0]
-        idx_1 = np.where(merged['biotype'] == 1)[0]
-
-    ttest = ttest_ind(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    d = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-    ts[i, 0] = ttest[0] # tvals
-    ts[i, 1] = ttest[1] # pvals
-    ds[i] = choens_d(merged[col].iloc[idx_0], merged[col].iloc[idx_1])
-
-corrected = multipletests(np.ravel(ts[:, 1]), alpha=0.05, method='fdr_bh')
-H1 = np.where(corrected[0])[0]
-
-f = open('dti_md.csv', 'wb')
-f.write('roi,t value,p value,choens d,significant\n')
-for i, col in enumerate(cols):
-    f.write('{},{:.2f},{:.2e},{:.2f},{}\n'.format(enigma_dict[col.split('_')[0]], ts[i, 0], ts[i, 1], ds[i],  str(int(corrected[0][i]))))
-f.close()
-print('dti md: {}/{} tests reject H0'.format(len(H1), len(cols)))
-
+cov_list = [merged['Education'], merged['Age at Enrollment']]
+analyze(merged, cov_list, cols, enigma_dict, 'enigma', 'dti_md.csv', site_correct=True)
 
