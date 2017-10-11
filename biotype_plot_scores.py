@@ -134,7 +134,8 @@ else:
 
 
 # for each plot of interest (cognitive scores, outcome scores, symptom scores, health scores)
-cog_cols = ['scog_er40_crt_columnqcrt_value_inv', 'Part1_TotalCorrect', 'Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps', 'np_domain_tscore_att_vigilance']
+#cog_cols = ['scog_er40_crt_columnqcrt_value_inv', 'Part1_TotalCorrect', 'Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps', 'np_domain_tscore_att_vigilance']
+cog_cols = ['scog_er40_crt_columnqcrt_value_inv', 'scog_er40_cr_columnpcr_value', 'Part1_TotalCorrect', 'Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps', 'np_domain_tscore_att_vigilance', 'np_composite_tscore']
 
 if not replication:
     out_cols = ['bsfs_total', 'qls_factor_interpersonal', 'qls_factor_instrumental_role', 'qls_factor_intrapsychic', 'qls_factor_comm_obj_activities', 'qls_total', 'sans_total_sc', 'sans_dim_exp_avg', 'sans_dim_mot_avg', 'bprs_factor_total', 'cirsg_total', 'cirsg_severity_index', 'sas_total', 'CPZ_equiv']
@@ -143,7 +144,8 @@ if not replication:
     #smp_cols = ['sans_total_sc', 'sans_dim_exp_avg', 'sans_dim_mot_avg', 'bprs_factor_total']
     #hlt_cols = ['cirsg_total', 'cirsg_severity_index', 'sas_total', 'CPZ_equiv']
 
-cog_names = ['ER40 RT (inv)', 'Tasit 1', 'Tasit 2', 'Tasit 3', 'RMET', 'RAD', 'Processing Speed', 'Working Memory', 'Verbal Learning', 'Visual Learning', 'Reasoning', 'Attention/Vigilance']
+#cog_names = ['ER40 RT (inv)', 'Tasit 1', 'Tasit 2', 'Tasit 3', 'RMET', 'RAD', 'Processing Speed', 'Working Memory', 'Verbal Learning', 'Visual Learning', 'Reasoning', 'Attention/Vigilance']
+cog_names = ['ER40 RT (inv)', 'ER40 # Correct' 'Tasit 1', 'Tasit 2', 'Tasit 3', 'RMET', 'RAD', 'Processing Speed', 'Working Memory', 'Verbal Learning', 'Visual Learning', 'Reasoning', 'Attention/Vigilance', 'MATRICS Composite']
 
 if not replication:
     out_names = ['Birchwood total', 'QLS interpersonal', 'QLS instrumental role', 'QLS intrapsychic', 'QLS common objectives', 'QLS total', 'SANS total', 'SANS diminished expression', 'SANS motivation', 'BPRS total', 'CIRSG total', 'CIRSG severity', 'SAS total', 'Medication load (CPZ equivilant)']

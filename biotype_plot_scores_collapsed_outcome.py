@@ -21,8 +21,8 @@ def zscore_by_group(X, labels, group):
     return((X - X_group_mean) / X_group_std)
 
 input_df = pd.read_csv('xbrain_database_with_biotypes.csv')
-cols = ['scog_er40_crt_columnqcrt_value_inv', 'Part1_TotalCorrect', 'Part2_TotalCorrect', 'Part3_TotalCorrect', 'RMET total', 'rad_total', 'np_domain_tscore_process_speed', 'np_domain_tscore_work_mem', 'np_domain_tscore_verbal_learning', 'np_domain_tscore_visual_learning', 'np_domain_tscore_reasoning_ps', 'np_domain_tscore_att_vigilance']
-names = ['ER40 RT (inv)', 'Tasit 1', 'Tasit 2', 'Tasit 3', 'RMET', 'RAD', 'Processing Speed', 'Working Memory', 'Verbal Learning', 'Visual Learning', 'Reasoning', 'Attention/Vigilance']
+cols = ['bsfs_total', 'qls_factor_interpersonal', 'qls_factor_instrumental_role', 'qls_factor_intrapsychic', 'qls_factor_comm_obj_activities', 'qls_total', 'sans_total_sc', 'sans_dim_exp_avg', 'sans_dim_mot_avg', 'bprs_factor_total']
+flipper = [False, False, False, False, False, False, True, True, True, True]
 
 flip = False
 try:
@@ -47,8 +47,13 @@ labels = db['diagnosis']
 if flip:
     input_df['biotype'] = np.abs(input_df['biotype']-1) # works because we only ever have 2 biotypes
 
-for col in cols:
-    db[col] = zscore_by_group(input_df[col], labels, healthy_group)
+input_df = input_df.loc[input_df['Diagnosis'] != healthy_group]
+
+for i, col in enumerate(cols):
+    if flipper[i]:
+        db[col] = zscore(input_df[col]*-1)
+    else:
+        db[col] = zscore(input_df[col])
 
 db = pd.melt(db, id_vars=['id', 'biotype', 'diagnosis'], value_vars=cols)
 
@@ -64,6 +69,6 @@ sns.distplot(d_0, hist=False, color="r", kde_kws={"shade": True}, label='biotype
 sns.distplot(d_1, hist=False, color="b", kde_kws={"shade": True}, label='biotype 1')
 sns.plt.legend()
 
-sns.plt.savefig('biotype_scores_collapsed.pdf')
+sns.plt.savefig('biotype_scores_collapsed_outcome.pdf')
 sns.plt.close()
 
