@@ -39,15 +39,20 @@ if flip_b:
 idx_triu = np.triu_indices(len(dat_a), k=1)
 dat_a = dat_a[idx_triu]
 dat_b = dat_b[idx_triu]
+import IPython; IPython.embed()
 
 # find connections that are significant in both datasets
-idx_a = np.where(dat_a)[0]
-idx_b = np.where(dat_b)[0]
-idx = np.intersect1d(idx_a, idx_b)
+#dat_a = dat_a.flatten()
+#dat_b = dat_b.flatten()
+
+
+#idx_a = np.where(dat_a)[0]
+#idx_b = np.where(dat_b)[0]
+#idx = np.intersect1d(idx_a, idx_b)
 
 # plot the positive and negative corrs seperately
-xa = dat_a[idx]
-xb = dat_b[idx]
+xa = dat_a
+xb = dat_b
 
 idx_pos = np.where(xa > 0)[0]
 idx_neg = np.where(xa < 0)[0]
@@ -55,22 +60,27 @@ idx_neg = np.where(xa < 0)[0]
 sns.set(style="white")
 if len(idx) > 2:
     r, p = pearsonr(xa, xb)
-    sns.regplot(xa, xb, color='r')
+    idx = np.array(random.sample(range(len(xa)), len(xa)/10))
+    sns.regplot(xa[idx], xb[idx], color='r')
     sns.plt.title('r={}, p={}'.format(r, p))
     sns.plt.savefig('{}.pdf'.format(output))
+    sns.plt.close()
 else:
     print('no shared corrs')
-#if len(idx_pos) > 2:
-#    print('positive r={}'.format(np.corrcoef(xa[idx_pos].T, xb[idx_pos].T)[0][1]))
-#    g = sns.jointplot(xa[idx_pos], xb[idx_pos], kind="reg", color="r", size=7, space=0)
-#    g.savefig('{}_pos.pdf'.format(output))
-#else:
-#    print('no shared positive corrs')
-#
-#if len(idx_neg) > 2:
-#    print('negative r={}'.format(np.corrcoef(xa[idx_neg].T, xb[idx_neg].T)[0][1]))
-#    g = sns.jointplot(xa[idx_neg], xb[idx_neg], kind="reg", color="r", size=7, space=0)
-#    g.savefig('{}_neg.pdf'.format(output))
-#else:
-#    print('no shared negative corrs')
+
+import IPython; IPython.embed()
+
+n = 100000
+ps = []
+
+for iter in range(n):
+    ps.append(np.corrcoef(np.random.permutation(xa), xb)[0][1])
+
+ps = np.hstack(ps)
+r = np.corrcoef(xa, xb)[0][1]
+n_passed = np.sum(r > ps)
+p = 1 - (float(n) / n_passed)
+print('p={} after {} permutations'.format(p, n))
+
+
 

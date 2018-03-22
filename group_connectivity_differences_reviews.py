@@ -13,23 +13,23 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 
 # load data etc
 mask = 'shen_1mm_268_parcellation.nii.gz'
-fdr = True
-#input_mdls = ['biotype-restconn_test-restconn',
-#              'biotype-restconn_test-restconn_replication',
-#              'biotype-imobconn_test-imobconn',
-#              'biotype-imobconn_test-imobconn_replication',
-#              'biotype-eaconn_test-eaconn',
-#              'biotype-restconn_test-restconn',
-#              'biotype-restconn_test-restconn_replication',
-#              'biotype-imobconn_test-imobconn',
-#              'biotype-imobconn_test-imobconn_replication',
-#              'biotype-eaconn_test-eaconn']
-#names = ['rest', 'rest-replication', 'imob', 'imob-replication', 'ea',
-#         'rest', 'rest-replication', 'imob', 'imob-replication', 'ea']
-#types = ['b', 'b', 'b', 'b', 'b', 'd', 'd', 'd', 'd', 'd']
-input_mdls = ['biotype-restconn_test-restconn_motion', 'biotype-restconn_test-restconn_motion']
-names = ['motion', 'motion']
-types = ['b', 'd']
+fdr = False
+input_mdls = ['biotype-restconn_test-restconn',
+              'biotype-restconn_test-restconn_replication',
+              'biotype-imobconn_test-imobconn',
+              'biotype-imobconn_test-imobconn_replication',
+              'biotype-eaconn_test-eaconn',
+              'biotype-restconn_test-restconn',
+              'biotype-restconn_test-restconn_replication',
+              'biotype-imobconn_test-imobconn',
+              'biotype-imobconn_test-imobconn_replication',
+              'biotype-eaconn_test-eaconn']
+names = ['rest', 'rest-replication', 'imob', 'imob-replication', 'ea',
+         'rest', 'rest-replication', 'imob', 'imob-replication', 'ea']
+types = ['b', 'b', 'b', 'b', 'b', 'd', 'd', 'd', 'd', 'd']
+#input_mdls = ['biotype-restconn_test-restconn_motion', 'biotype-restconn_test-restconn_motion']
+#names = ['motion', 'motion']
+#types = ['b', 'd']
 
 for i, input_mdl in enumerate(input_mdls):
 
@@ -83,7 +83,7 @@ for i, input_mdl in enumerate(input_mdls):
             passed = corrected[0]
             pvals_corrected = corrected[1]
         else:
-            threshold = 0.005
+            threshold = 1
             passed = pvals[:, j] < threshold
 
         # skip comparisons with no significant contrasts
