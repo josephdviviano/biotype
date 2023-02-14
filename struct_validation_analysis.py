@@ -217,7 +217,7 @@ surf_dict = {'L_bankssts': 'Left Bank of Superior Temporal Sulcus',
              'R_insula': 'Right Insula'}
 
 # freesurfer subcortical ROI names
-sub_dict = {' LLatVent': 'Left Lateral Ventricle',
+sub_dict = {'LLatVent': 'Left Lateral Ventricle',
             'RLatVent': 'Right Lateral Ventricle',
             'Lthal': 'Left Thalamus',
             'Rthal': 'Right Thalamus',
@@ -225,7 +225,7 @@ sub_dict = {' LLatVent': 'Left Lateral Ventricle',
             'Rcaud': 'Right Caudate',
             'Lput': 'Left Putamin',
             'Rput': 'Right Putamin',
-            '  Lpal': 'Left Globus Pallidus',
+            'Lpal': 'Left Globus Pallidus',
             'Rpal': 'Right Globus Pallidus',
             'Lhippo': 'Left Hippocampus',
             'Rhippo': 'Right Hippocampus',
@@ -239,7 +239,7 @@ cols = np.array(['L_bankssts_thickavg', 'L_caudalanteriorcingulate_thickavg', 'L
 stats = pd.read_csv(os.path.join(assets, 'all_thickness.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-cov_list = [merged['Education'], merged['Age at Enrollment']]
+cov_list = [merged['Education'], merged['Age'], merged['Sex']]
 analyze(merged, cov_list, cols, surf_dict, 'cortex', 'cortical_thickness.csv')
 
 # cortical surface space
@@ -247,15 +247,15 @@ cols = np.array(['L_bankssts_surfavg', 'L_caudalanteriorcingulate_surfavg', 'L_c
 stats = pd.read_csv(os.path.join(assets, 'all_surfavg.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-cov_list = [merged['Education'], merged['Age at Enrollment']]
+cov_list = [merged['Education'], merged['Age'], merged['Sex']]
 analyze(merged, cov_list, cols, surf_dict, 'cortex', 'cortical_surface_space.csv')
 
 # subcortical volumes
-cols = np.array([' LLatVent', 'RLatVent', 'Lthal', 'Rthal', 'Lcaud', 'Rcaud', 'Lput', 'Rput', '  Lpal', 'Rpal', 'Lhippo', 'Rhippo', 'Lamyg', 'Ramyg', 'Laccumb', 'Raccumb'])
+cols = np.array(['LLatVent', 'RLatVent', 'Lthal', 'Rthal', 'Lcaud', 'Rcaud', 'Lput', 'Rput', 'Lpal', 'Rpal', 'Lhippo', 'Rhippo', 'Lamyg', 'Ramyg', 'Laccumb', 'Raccumb'])
 stats = pd.read_csv(os.path.join(assets, 'all_volumes.csv'))
 stats['ID'] = stats['SubjID'].apply(split_name)
 merged = db.merge(stats, on='ID')
-cov_list = [merged['Education'], merged['ICV'], merged['Age at Enrollment']]
+cov_list = [merged['Education'], merged['ICV'], merged['Age'], merged['Sex']]
 analyze(merged, cov_list, cols, sub_dict, 'subcortex', 'subcortical_volumes.csv')
 
 # deep white matter FA
@@ -263,7 +263,7 @@ cols = np.array(['ACR-L_FA', 'ACR-R_FA', 'ALIC-L_FA', 'ALIC-R_FA', 'BCC_FA', 'CC
 stats = pd.read_csv(os.path.join(assets, 'all_fa.csv'))
 stats['ID'] = stats['id'].apply(split_name)
 merged = db.merge(stats, on='ID')
-cov_list = [merged['Education'], merged['Age at Enrollment']]
+cov_list = [merged['Education'], merged['Age'], merged['Sex']]
 analyze(merged, cov_list, cols, enigma_dict, 'enigma', 'dti_fa.csv', site_correct=True)
 
 # deep white matter MD
@@ -271,6 +271,6 @@ cols = np.array(['ACR-L_MD', 'ACR-R_MD', 'ALIC-L_MD', 'ALIC-R_MD', 'BCC_MD', 'CC
 stats = pd.read_csv(os.path.join(assets, 'all_md.csv'))
 stats['ID'] = stats['id'].apply(split_name)
 merged = db.merge(stats, on='ID')
-cov_list = [merged['Education'], merged['Age at Enrollment']]
+cov_list = [merged['Education'], merged['Age'], merged['Sex']]
 analyze(merged, cov_list, cols, enigma_dict, 'enigma', 'dti_md.csv', site_correct=True)
 

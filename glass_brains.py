@@ -47,6 +47,8 @@ def plot(filename, flip=False):
     except:
         print('nothing significant in {}'.format(filename))
         return None
+
+    # threshold = find_threshold(data, pct=75)  # Old threshold .
     plotting.plot_glass_brain(data, threshold=threshold, colorbar=True, plot_abs=False, display_mode='lzry')
     plotting.matplotlib.pyplot.savefig('{}.pdf'.format(title))
     #plotting.matplotlib.pyplot.savefig('{}.jpg'.format(title))
@@ -68,6 +70,11 @@ filenames = {
    #'xbrain_diagnosis_rois_imob.nii.gz': False,
    #'xbrain_diagnosis_rois_rest.nii.gz': False,
    #'xbrain_diagnosis_rois_rest-replication.nii.gz': False
+
+#filenames = {
+#    'xbrain_biotype_rois_motion.nii.gz': True,
+#    'xbrain_diagnosis_rois_motion.nii.gz': False
+#}
 
 for filename in filenames.keys():
     print(filename)

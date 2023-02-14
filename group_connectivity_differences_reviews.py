@@ -13,27 +13,23 @@ from statsmodels.sandbox.stats.multicomp import multipletests
 
 # load data etc
 mask = 'shen_1mm_268_parcellation.nii.gz'
-fdr = True
-#input_mdls = ['biotype-restconn_test-restconn',
-#              'biotype-restconn_test-restconn_replication',
-#              'biotype-imobconn_test-imobconn',
-#              'biotype-imobconn_test-imobconn_replication',
-#              'biotype-eaconn_test-eaconn',
-#              'biotype-restconn_test-restconn',
-#              'biotype-restconn_test-restconn_replication',
-#              'biotype-imobconn_test-imobconn',
-#              'biotype-imobconn_test-imobconn_replication',
-#              'biotype-eaconn_test-eaconn']
-#names = ['rest', 'rest-replication', 'imob', 'imob-replication', 'ea',
-#         'rest', 'rest-replication', 'imob', 'imob-replication', 'ea']
-#types = ['b', 'b', 'b', 'b', 'b', 'd', 'd', 'd', 'd', 'd']
-input_mdls = ['biotype-restconn_test-restconn_motion', 'biotype-restconn_test-restconn_motion']
-names = ['motion', 'motion']
-types = ['b', 'd']
-
-
-f = open('xbrain_roi_thresholds.csv', 'wb')
-f.write('name,type,threshold,n_connections\n')
+fdr = False
+input_mdls = ['biotype-restconn_test-restconn',
+              'biotype-restconn_test-restconn_replication',
+              'biotype-imobconn_test-imobconn',
+              'biotype-imobconn_test-imobconn_replication',
+              'biotype-eaconn_test-eaconn',
+              'biotype-restconn_test-restconn',
+              'biotype-restconn_test-restconn_replication',
+              'biotype-imobconn_test-imobconn',
+              'biotype-imobconn_test-imobconn_replication',
+              'biotype-eaconn_test-eaconn']
+names = ['rest', 'rest-replication', 'imob', 'imob-replication', 'ea',
+         'rest', 'rest-replication', 'imob', 'imob-replication', 'ea']
+types = ['b', 'b', 'b', 'b', 'b', 'd', 'd', 'd', 'd', 'd']
+#input_mdls = ['biotype-restconn_test-restconn_motion', 'biotype-restconn_test-restconn_motion']
+#names = ['motion', 'motion']
+#types = ['b', 'd']
 
 for i, input_mdl in enumerate(input_mdls):
 
@@ -87,7 +83,7 @@ for i, input_mdl in enumerate(input_mdls):
             passed = corrected[0]
             pvals_corrected = corrected[1]
         else:
-            threshold = 0.005
+            threshold = 1
             passed = pvals[:, j] < threshold
 
         # skip comparisons with no significant contrasts
@@ -100,14 +96,11 @@ for i, input_mdl in enumerate(input_mdls):
             print('input {}: pair {}/{}, threshold {}, n_connections {}'.format(
                 names[i], j+1, len(pairs), threshold, sum(passed)))
 
-            f.write('{},{},{},{}\n'.format(names[i], types[i], threshold, sum(passed)))
-
             pvals[passed] = 1
             pvals[~passed] = 0
 
         except:
             pvals[:] = 0
-            f.write('{},{},{},{}\n'.format(names[i], types[i], 0, 0))
 
         # take mean of thresholded group data
         d1 = np.mean(group_data[t1] * pvals[:, j].T, axis=0)
@@ -207,5 +200,5 @@ for i, input_mdl in enumerate(input_mdls):
         output_nii.to_filename(output)
     else:
         print('NO SIG DIFFERENCES FOR {}'.format(output))
-f.close()
+
 
