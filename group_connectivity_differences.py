@@ -29,6 +29,10 @@ names = ['rest', 'rest-replication', 'imob', 'imob-replication', 'ea',
 types = ['b', 'b', 'b', 'b', 'b', 'd', 'd', 'd', 'd', 'd']
 
 
+
+f = open('xbrain_roi_thresholds.csv', 'wb')
+f.write('name,type,threshold,n_connections\n')
+
 for i, input_mdl in enumerate(input_mdls):
 
     if types[i] == 'b':
@@ -94,11 +98,14 @@ for i, input_mdl in enumerate(input_mdls):
             print('input {}: pair {}/{}, threshold {}, n_connections {}'.format(
                 names[i], j+1, len(pairs), threshold, sum(passed)))
 
+            f.write('{},{},{},{}\n'.format(names[i], types[i], threshold, sum(passed)))
+
             pvals[passed] = 1
             pvals[~passed] = 0
 
         except:
             pvals[:] = 0
+            f.write('{},{},{},{}\n'.format(names[i], types[i], 0, 0))
 
         # take mean of thresholded group data
         d1 = np.mean(group_data[t1] * pvals[:, j].T, axis=0)
@@ -198,5 +205,5 @@ for i, input_mdl in enumerate(input_mdls):
         output_nii.to_filename(output)
     else:
         print('NO SIG DIFFERENCES FOR {}'.format(output))
-
+f.close()
 

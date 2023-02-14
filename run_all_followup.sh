@@ -27,8 +27,8 @@ cd ..
 echo "imob biotype: replication sample"
 cd biotype-imobconn_test-imobconn_replication
 make_db_with_biotypes.py
-biotype_plot_scores.py flip
-biotype_plot_scores_subjectwise.py flip
+biotype_plot_scores.py
+biotype_plot_scores_subjectwise.py
 biotype_plot_xy_loadings.py flip flip flip
 cd ..
 

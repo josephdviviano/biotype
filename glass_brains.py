@@ -42,10 +42,14 @@ def plot(filename, flip=False):
     data = make_3d(filename, 4) # change this to get different sub-brick
     if flip:
         data = invert(data)
-    threshold = find_threshold(data, 0)
+    try:
+        threshold = find_threshold(data, 0)
+    except:
+        print('nothing significant in {}'.format(filename))
+        return None
     plotting.plot_glass_brain(data, threshold=threshold, colorbar=True, plot_abs=False, display_mode='lzry')
     plotting.matplotlib.pyplot.savefig('{}.pdf'.format(title))
-    plotting.matplotlib.pyplot.savefig('{}.jpg'.format(title))
+    #plotting.matplotlib.pyplot.savefig('{}.jpg'.format(title))
 
 # if true, inverts colormap
 filenames = {
@@ -53,8 +57,12 @@ filenames = {
     'xbrain_biotype_rois_imob.nii.gz': False,
     'xbrain_biotype_rois_imob-replication.nii.gz': False,
     'xbrain_biotype_rois_rest.nii.gz': False,
-    'xbrain_biotype_rois_rest-replication.nii.gz': False
-}
+    'xbrain_biotype_rois_rest-replication.nii.gz': False,
+    'xbrain_diagnosis_rois_rest.nii.gz': False,
+    'xbrain_diagnosis_rois_rest-replication.nii.gz': False,
+    'xbrain_diagnosis_rois_imob.nii.gz': False,
+    'xbrain_diagnosis_rois_imob-replication.nii.gz': False,
+    'xbrain_diagnosis_rois_ea.nii.gz': False}
 # non significant: xbrain_diagnosis_rois_imob-replication.nii.gz
    #'xbrain_diagnosis_rois_ea.nii.gz': False,
    #'xbrain_diagnosis_rois_imob.nii.gz': False,

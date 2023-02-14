@@ -6,7 +6,7 @@ matplotlib.use('Agg')   # Force matplotlib to not use any Xwindows backend
 import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
-
+import os
 
 def zscore(X):
     return((X - X.mean(axis=0)) / X.std(axis=0))
@@ -40,14 +40,35 @@ except:
 db['biotype'] = input_df['biotype']
 db['diagnosis'] = input_df['Diagnosis']
 
-healthy_group = 1  # healthy controls
 labels = db['diagnosis']
 
 if flip:
-    input_df['biotype'] = np.abs(input_df['biotype']-1) # works because we only ever have 2 biotypes
+    db['biotype'] = np.abs(input_df['biotype']-1) # works because we only ever have 2 biotypes
+
+if 'replication' in os.path.basename(os.path.abspath(os.curdir)):
+    replication = True
+else:
+    replication = False
+
+if replication:
+    healthy_group = 'HC'
+else:
+    healthy_group = 1
 
 for col in cols:
     db[col] = zscore_by_group(input_df[col], labels, healthy_group)
+
+# write out stats for text
+f = open('biotype_distributions.csv', 'wb')
+f.write('group,n,n_patients\n')
+# kludge to handle replication data formatting
+if not replication:
+    f.write('average,{},{}\n'.format(sum(db['biotype'] == 0), sum(db['diagnosis'].loc[db['biotype'] == 0] == 4)))
+    f.write('below-average,{},{}\n'.format(sum(db['biotype'] == 1), sum(db['diagnosis'].loc[db['biotype'] == 1] == 4)))
+else:
+    f.write('average,{},{}'.format(sum(db['biotype'] == 0), sum(db['diagnosis'].loc[db['biotype'] == 0] == 'SZ')))
+    f.write('below-average,{},{}'.format(sum(db['biotype'] == 1), sum(db['diagnosis'].loc[db['biotype'] == 1] == 'SZ')))
+f.close()
 
 db = pd.melt(db, id_vars=['id', 'biotype', 'diagnosis'], value_vars=cols)
 
